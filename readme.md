@@ -43,4 +43,5 @@ wasm-pack build --target web --out-dir ../public/wasm
 ```
 Rustの関数をJavaScriptから呼び出せるようにwasm化するとビジュアライザが動くようになります。
 
-具体的な実装は、yukicoder-score-contest002ブランチやchokduai-contest-005ブランチを参考にしてください。それらのブランチのreadmeに実装に関する簡単な解説が書いてあります。
+具体的な実装は、yukicoder-score-contest002ブランチやchokduai-contest-005ブランチを参考にしてください。
+
