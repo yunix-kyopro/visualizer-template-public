@@ -48,7 +48,7 @@
     "stylelint-config-standard": "^33.0.0",
     "stylelint-order": "^6.0.3",
     "typescript": "*",
-    "vite": "^4.3.2",
+    "vite": "^4.3.9",
     "vite-tsconfig-paths": "^4.2.0"
   },
   "lint-staged": {
