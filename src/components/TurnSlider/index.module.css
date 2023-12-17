@@ -1,0 +1,19 @@
+.sliderButton {
+    position: relative;
+    bottom: 5px;
+    width: 32px;
+    height: 32px;
+}
+
+.speedSlider{
+    width: 200px;
+}
+
+.turnInput{
+    width:70px;
+    text-align: right;
+}
+
+.turnSlider{
+    width: 780px;
+}

@@ -1,0 +1,20 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2.89"
+rand = { version = "=0.7.3", features = ["small_rng"] }
+rand_chacha = "=0.2.2"
+rand_distr = "=0.2.2"
+itertools = "=0.11.0"
+proconio = { version = "=0.3.6", features = ["derive"] }
+clap = { version = "4.0.22", features = ["derive"] }
+svg = "0.9.0"
+delaunator = "1.0.1"
+web-sys = {"version" = "0.3.44", features=['console']}
