@@ -1,12 +1,8 @@
 #![allow(non_snake_case, unused_macros)]
-use itertools::Itertools;
 use proconio::input;
 use rand::prelude::*;
 use std::collections::VecDeque;
-use svg::node::{
-    element::{Group, Rectangle, Style, Title},
-    Text,
-};
+use svg::node::element::{Rectangle, Style};
 use web_sys::console::log_1;
 
 pub trait SetMinMax {
