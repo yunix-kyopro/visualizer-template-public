@@ -1,6 +1,8 @@
 import type { FC } from 'react';
-
+import { useState } from 'react';
 import { type VisualizerSettingInfo } from '../../types';
+import { useDownloadInput } from './hooks.ts';
+
 import styles from './index.module.css';
 
 type InputOutputProps = {
@@ -14,6 +16,10 @@ const InputOutput: FC<InputOutputProps> = ({
   visualizerSettingInfo,
   setVisualizerSettingInfo,
 }) => {
+  const [downloadCases, setDownloadCases] = useState(100);
+  const [buttonText, setButtonText] = useState('Download');
+  const { downloadInput } = useDownloadInput();
+
   const onChangeSeed = (e: React.ChangeEvent<HTMLInputElement>) => {
     setVisualizerSettingInfo((prev) => ({
       ...prev,
@@ -48,12 +54,36 @@ const InputOutput: FC<InputOutputProps> = ({
             onChange={onChangeSeed}
           />
         </label>
+        <label>
+          #cases:
+          <input
+            type="number"
+            value={downloadCases}
+            onChange={(e) => {
+              setDownloadCases(Number(e.target.value));
+            }}
+            min="1"
+            max="10000"
+          />
+        </label>
+        <input
+          type="button"
+          value={buttonText}
+          disabled={buttonText !== 'Download'}
+          onClick={() => {
+            downloadInput(
+              visualizerSettingInfo.seed,
+              downloadCases,
+              setButtonText
+            );
+          }}
+        />
       </div>
       <div>
         <label>
           Input: <br />
           <textarea
-            className={styles.textArea}
+            className={styles.textArea} //eslint-disable-line
             rows={4}
             value={visualizerSettingInfo.input}
             onChange={onChangeInput}
@@ -64,7 +94,7 @@ const InputOutput: FC<InputOutputProps> = ({
         <label>
           Output: <br />
           <textarea
-            className={styles.textArea}
+            className={styles.textArea} //eslint-disable-line
             rows={4}
             value={visualizerSettingInfo.output}
             onChange={onChangeOutput}
