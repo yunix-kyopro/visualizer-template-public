@@ -8,5 +8,6 @@ export type VisualizerSettingInfo = {
 
 export type VisualizerResult = {
   svgString: string;
+  err: string;
   score: number;
 };
