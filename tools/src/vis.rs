@@ -2,7 +2,7 @@ mod helpers;
 
 use crate::{
     io::{Input, Output},
-    vis::helpers::{circle, color, rect, with_title},
+    vis::helpers::{circle, color, init_svg, rect, with_title},
 };
 use svg::Document;
 
@@ -33,23 +33,10 @@ pub(super) fn visualize(
 
     const VIEW_SIZE: f64 = 600.0;
     const VIEW_PADDING: f64 = 10.0;
-    let doc = svg::Document::new()
-        .set("id", "vis")
-        .set(
-            "viewBox",
-            (
-                -VIEW_PADDING,
-                -VIEW_PADDING,
-                VIEW_SIZE + VIEW_PADDING * 2.0,
-                VIEW_SIZE + VIEW_PADDING * 2.0,
-            ),
-        )
-        .set("width", VIEW_SIZE + VIEW_PADDING * 2.0)
-        .set("height", VIEW_SIZE + VIEW_PADDING * 2.0)
-        .set("style", "background-color:white");
+    let doc = init_svg(VIEW_SIZE, VIEW_PADDING);
 
-    let doc = doc.add(rect(10.0, 10.0, 60.0, 60.0, &color(0.5)));
-    let doc = doc.add(with_title(circle(200., 200., 20., "gray"), "hoge"));
+    let doc = doc.add(rect(10.0, 10.0, 60.0, 60.0, color(0.5)));
+    let doc = doc.add(with_title(circle(200., 200., 20., "gray".into()), "hoge"));
 
     todo!("Write code to visualize here.");
 
