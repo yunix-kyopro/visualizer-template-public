@@ -16,9 +16,9 @@ pub struct Ret {
 }
 
 #[wasm_bindgen]
-pub fn vis(_input: String, _output: String, turn: usize) -> Ret {
+pub fn vis(input: String, output: String, turn: usize) -> Ret {
     let option = VisOption { turn };
-    match try_vis(&_input, &_output, option) {
+    match try_vis(&input, &output, option) {
         Ok(ret) => ret,
         Err(err) => Ret {
             score: 0,

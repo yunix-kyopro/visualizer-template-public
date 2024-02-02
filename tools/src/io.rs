@@ -14,7 +14,7 @@ pub struct GenOption {
 /// **(CUSTOMIZE IT!)** Input for this problem
 #[derive(Debug, Clone)]
 pub struct Input {
-    n: usize,
+    pub n: usize,
 }
 
 impl Input {
@@ -54,7 +54,7 @@ impl Display for Input {
 /// **(CUSTOMIZE IT!)** Output for this problem
 #[derive(Debug, Clone)]
 pub struct Output {
-    k: usize,
+    pub k: usize,
 }
 
 impl Output {

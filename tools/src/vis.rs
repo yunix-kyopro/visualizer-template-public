@@ -28,17 +28,27 @@ pub(super) fn visualize(
     let option = option.unwrap_or(VisOption {
         turn: outputs.len() - 1,
     });
-    let output = &outputs[option.turn];
-    let score = output.calc_score(input)?;
 
     const VIEW_SIZE: f64 = 600.0;
     const VIEW_PADDING: f64 = 10.0;
     let doc = init_svg(VIEW_SIZE, VIEW_PADDING);
 
-    let doc = doc.add(rect(10.0, 10.0, 60.0, 60.0, color(0.5)));
-    let doc = doc.add(with_title(circle(200., 200., 20., "gray".into()), "hoge"));
+    // Draw Input
+    let x = 30.0 * (input.n as f64 + 1.0);
+    let doc = doc.add(rect(x, 10.0, 60.0, 60.0, color(0.5)));
 
     todo!("Write code to visualize here.");
+
+    // Draw Output
+    if outputs.len() == 0 {
+        return Ok(VisResult { score: 0, svg: doc });
+    }
+
+    let output = &outputs[option.turn];
+    let score = output.calc_score(input)?;
+
+    let y = 10.0 * (output.k as f64 + 1.0);
+    let doc = doc.add(with_title(circle(200., y, 20., "gray".into()), "hoge"));
 
     Ok(VisResult { score, svg: doc })
 }
