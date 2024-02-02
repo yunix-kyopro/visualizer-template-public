@@ -31,11 +31,11 @@ pub(super) fn visualize(
 
     const VIEW_SIZE: f64 = 600.0;
     const VIEW_PADDING: f64 = 10.0;
-    let doc = init_svg(VIEW_SIZE, VIEW_PADDING);
+    let mut doc = init_svg(VIEW_SIZE, VIEW_PADDING);
 
     // Draw Input
     let x = 30.0 * (input.n as f64 + 1.0);
-    let doc = doc.add(rect(x, 10.0, 60.0, 60.0, color(0.5)));
+    doc = doc.add(rect(x, 10.0, 60.0, 60.0, color(0.5)));
 
     todo!("Write code to visualize here.");
 
@@ -48,7 +48,7 @@ pub(super) fn visualize(
     let score = output.calc_score(input)?;
 
     let y = 10.0 * (output.k as f64 + 1.0);
-    let doc = doc.add(with_title(circle(200., y, 20., "gray".into()), "hoge"));
+    doc = doc.add(with_title(circle(200., y, 20., "gray".into()), "hoge"));
 
     Ok(VisResult { score, svg: doc })
 }
