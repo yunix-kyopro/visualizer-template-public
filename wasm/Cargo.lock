@@ -153,8 +153,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "190092ea657667030ac6a35e305e62fc4dd69fd98ac98631e5d3a2b1575a12b5"
 dependencies = [
  "cfg-if",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -423,8 +425,10 @@ checksum = "e5864e7ef1a6b7bcf1d6ca3f655e65e724ed3b52546a0d0a663c991522f552ea"
 name = "rust"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "clap",
  "delaunator",
+ "getrandom 0.2.12",
  "itertools 0.11.0",
  "proconio 0.3.6",
  "rand 0.7.3",

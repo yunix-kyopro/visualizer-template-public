@@ -19,3 +19,5 @@ svg = "0.9.0"
 delaunator = "1.0.1"
 web-sys = { "version" = "0.3.44", features = ['console'] }
 tools = { path = "../tools" }
+anyhow = "1.0.79"
+getrandom = { version = "0.2.12", features = ["js"] }

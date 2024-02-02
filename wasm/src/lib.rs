@@ -1,8 +1,11 @@
+use tools::{io::GenOption, parse_input, parse_outputs, vis::VisOption, visualize};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn gen(seed: i32) -> String {
-    "".to_string()
+    let option = GenOption { seed: seed as u64 };
+    let input = tools::io::Input::gen(option);
+    input.to_string()
 }
 
 #[wasm_bindgen(getter_with_clone)]
@@ -14,14 +17,37 @@ pub struct Ret {
 
 #[wasm_bindgen]
 pub fn vis(_input: String, _output: String, turn: usize) -> Ret {
-    Ret {
-        score: 0,
-        err: "".to_string(),
-        svg: "".to_string(),
+    let option = VisOption { turn };
+    match try_vis(&_input, &_output, option) {
+        Ok(ret) => ret,
+        Err(err) => Ret {
+            score: 0,
+            err: format!("{:#}", err),
+            svg: "".to_string(),
+        },
     }
 }
 
+fn try_vis(input: &str, output: &str, option: VisOption) -> anyhow::Result<Ret> {
+    let input = parse_input(&input)?;
+    let outputs = parse_outputs(&output)?;
+    let vis_result = visualize(&input, &outputs, Some(option))?;
+
+    Ok(Ret {
+        score: vis_result.score,
+        err: "".to_string(),
+        svg: vis_result.svg.to_string(),
+    })
+}
+
 #[wasm_bindgen]
-pub fn get_max_turn(_input: String, _output: String) -> usize {
-    0
+pub fn get_max_turn(input: String, output: String) -> usize {
+    try_get_max_turn(&input, &output).unwrap_or(0)
+}
+
+fn try_get_max_turn(input: &str, output: &str) -> anyhow::Result<usize> {
+    let _input = parse_input(&input)?;
+    let outputs = parse_outputs(&output)?;
+
+    Ok(outputs.len().saturating_sub(1))
 }
