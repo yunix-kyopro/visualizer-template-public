@@ -7,6 +7,7 @@ use svg::{
 };
 
 /// Initialize an SVG document.
+#[allow(dead_code)]
 pub(super) fn init_svg(view_size: f64, view_padding: f64) -> svg::node::element::SVG {
     let doc = svg::Document::new()
         .set("id", "vis")
@@ -55,6 +56,7 @@ pub(super) struct Stroke(pub Color, pub f64);
 /// Convert a value to a color.
 ///
 /// required: 0 <= v <= 1
+#[allow(dead_code)]
 pub(super) fn get_color(v: f64) -> Color {
     let v = v.clamp(0.0, 1.0);
 
@@ -78,6 +80,7 @@ pub(super) fn get_color(v: f64) -> Color {
 }
 
 /// Create a rectangle.
+#[allow(dead_code)]
 pub(super) fn create_rect<V: Into<svg::node::Value>>(
     x: V,
     y: V,
@@ -96,16 +99,17 @@ pub(super) fn create_rect<V: Into<svg::node::Value>>(
         rect = rect.set("fill", String::from(fill));
     }
 
-    if let Some(stroke) = stroke {
+    if let Some(Stroke(color, width)) = stroke {
         rect = rect
-            .set("stroke", String::from(stroke.0))
-            .set("stroke-width", stroke.1);
+            .set("stroke", String::from(color))
+            .set("stroke-width", width);
     }
 
     rect
 }
 
 /// Create a circle.
+#[allow(dead_code)]
 pub(super) fn create_circle<V: Into<svg::node::Value>>(
     x: V,
     y: V,
@@ -119,16 +123,17 @@ pub(super) fn create_circle<V: Into<svg::node::Value>>(
         circle = circle.set("fill", String::from(fill));
     }
 
-    if let Some(stroke) = stroke {
+    if let Some(Stroke(color, width)) = stroke {
         circle = circle
-            .set("stroke", String::from(stroke.0))
-            .set("stroke-width", stroke.1);
+            .set("stroke", String::from(color))
+            .set("stroke-width", width);
     }
 
     circle
 }
 
 /// Create a line.
+#[allow(dead_code)]
 pub(super) fn create_line<V: Into<svg::node::Value>>(
     x1: V,
     y1: V,
@@ -147,6 +152,7 @@ pub(super) fn create_line<V: Into<svg::node::Value>>(
 }
 
 /// Create a text label.
+#[allow(dead_code)]
 pub(super) fn create_text<V: Into<svg::node::Value>, S: Into<String>>(
     x: V,
     y: V,
@@ -162,6 +168,7 @@ pub(super) fn create_text<V: Into<svg::node::Value>, S: Into<String>>(
 }
 
 /// Append a title (=tooltip) to a node.
+#[allow(dead_code)]
 pub(super) fn with_title(node: impl Into<Box<dyn Node>>, title: impl Into<String>) -> Group {
     Group::new()
         .add(Title::new().add(Text::new(title)))

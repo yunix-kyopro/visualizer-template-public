@@ -2,6 +2,7 @@ use std::{fmt::Display, str::FromStr};
 use thiserror::Error;
 
 /// Read a token and parse it into a value.
+#[allow(dead_code)]
 pub(super) fn read<T: Copy + PartialOrd + Display + FromStr>(
     token: Option<&str>,
     lb: T,
