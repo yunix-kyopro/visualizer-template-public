@@ -39,7 +39,7 @@ fn get_vis_result(args: &Args) -> anyhow::Result<VisResult> {
     let input = parse_input(&input_str)?;
     let output_str = fs::read_to_string(&args.output)
         .with_context(|| format!("No such output file: {}", &args.output.to_string_lossy()))?;
-    let outputs = parse_outputs(&output_str)?;
+    let outputs = parse_outputs(&input, &output_str)?;
 
     let vis_result = visualize(&input, &outputs, None)?;
 

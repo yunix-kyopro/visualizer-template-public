@@ -14,19 +14,19 @@ pub fn parse_input(s: &str) -> anyhow::Result<Input> {
 }
 
 /// Parse single output
-pub fn parse_output(s: &str) -> anyhow::Result<Output> {
-    let outputs = parse_outputs(s)?;
+pub fn parse_output(input: &Input, s: &str) -> anyhow::Result<Output> {
+    let outputs = parse_outputs(input, s)?;
     let last_output = outputs.into_iter().last().context("No output")?;
     Ok(last_output)
 }
 
 /// Parse multiple outputs
-pub fn parse_outputs(s: &str) -> anyhow::Result<Vec<Output>> {
+pub fn parse_outputs(input: &Input, s: &str) -> anyhow::Result<Vec<Output>> {
     let mut s = s.split_whitespace().peekable();
     let mut out = vec![];
 
     while s.peek().is_some() {
-        out.push(Output::parse(&mut s).context("Failed to parse Output")?);
+        out.push(Output::parse(input, &mut s).context("Failed to parse Output")?);
     }
 
     Ok(out)

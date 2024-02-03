@@ -60,6 +60,7 @@ pub struct Output {
 impl Output {
     /// **(CUSTOMIZE IT!)** Parse Output from tokens
     pub(super) fn parse<'a>(
+        input: &Input,
         tokens: &mut Peekable<impl Iterator<Item = &'a str>>,
     ) -> anyhow::Result<Self> {
         let k = read(tokens.next(), 0, 1000)?;

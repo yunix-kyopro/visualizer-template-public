@@ -30,7 +30,7 @@ pub fn vis(input: String, output: String, turn: usize) -> Ret {
 
 fn try_vis(input: &str, output: &str, option: VisOption) -> anyhow::Result<Ret> {
     let input = parse_input(&input)?;
-    let outputs = parse_outputs(&output)?;
+    let outputs = parse_outputs(&input, &output)?;
     let vis_result = visualize(&input, &outputs, Some(option))?;
 
     Ok(Ret {
@@ -46,8 +46,8 @@ pub fn get_max_turn(input: String, output: String) -> usize {
 }
 
 fn try_get_max_turn(input: &str, output: &str) -> anyhow::Result<usize> {
-    let _input = parse_input(&input)?;
-    let outputs = parse_outputs(&output)?;
+    let input = parse_input(&input)?;
+    let outputs = parse_outputs(&input, &output)?;
 
     Ok(outputs.len().saturating_sub(1))
 }
