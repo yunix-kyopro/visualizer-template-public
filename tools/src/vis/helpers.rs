@@ -8,7 +8,11 @@ use svg::{
 
 /// Initialize an SVG document.
 #[allow(dead_code)]
-pub(super) fn init_svg(view_size: f64, view_padding: f64) -> svg::node::element::SVG {
+pub(super) fn init_svg(
+    view_width: f64,
+    view_height: f64,
+    view_padding: f64,
+) -> svg::node::element::SVG {
     let doc = svg::Document::new()
         .set("id", "vis")
         .set(
@@ -16,12 +20,12 @@ pub(super) fn init_svg(view_size: f64, view_padding: f64) -> svg::node::element:
             (
                 -view_padding,
                 -view_padding,
-                view_size + view_padding * 2.0,
-                view_size + view_padding * 2.0,
+                view_width + view_padding * 2.0,
+                view_height + view_padding * 2.0,
             ),
         )
-        .set("width", view_size + view_padding * 2.0)
-        .set("height", view_size + view_padding * 2.0)
+        .set("width", view_width + view_padding * 2.0)
+        .set("height", view_height + view_padding * 2.0)
         .set("style", "background-color:white");
     doc
 }

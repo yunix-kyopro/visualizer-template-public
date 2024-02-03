@@ -32,7 +32,7 @@ pub(super) fn visualize(
         turn: outputs.len() - 1,
     });
 
-    let mut doc = init_svg(VIEW_SIZE, VIEW_PADDING);
+    let mut doc = init_svg(VIEW_SIZE, VIEW_SIZE, VIEW_PADDING);
 
     // Draw Input
     let x = 30.0 * (input.n as f64 + 1.0);
