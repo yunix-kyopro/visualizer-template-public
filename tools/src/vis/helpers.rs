@@ -49,10 +49,13 @@ impl From<&'static str> for Color {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub(super) struct Stroke(pub Color, pub f64);
+
 /// Convert a value to a color.
 ///
 /// required: 0 <= v <= 1
-pub(super) fn color(v: f64) -> Color {
+pub(super) fn get_color(v: f64) -> Color {
     let v = v.clamp(0.0, 1.0);
 
     let (r, g, b) = if v < 0.5 {
@@ -75,32 +78,58 @@ pub(super) fn color(v: f64) -> Color {
 }
 
 /// Create a rectangle.
-pub(super) fn rect<V: Into<svg::node::Value>>(
+pub(super) fn create_rect<V: Into<svg::node::Value>>(
     x: V,
     y: V,
     width: V,
     height: V,
-    fill: Color,
+    fill: Option<Color>,
+    stroke: Option<Stroke>,
 ) -> Rectangle {
-    Rectangle::new()
+    let mut rect = Rectangle::new()
         .set("x", x)
         .set("y", y)
         .set("width", width)
-        .set("height", height)
-        .set("fill", String::from(fill))
+        .set("height", height);
+
+    if let Some(fill) = fill {
+        rect = rect.set("fill", String::from(fill));
+    }
+
+    if let Some(stroke) = stroke {
+        rect = rect
+            .set("stroke", String::from(stroke.0))
+            .set("stroke-width", stroke.1);
+    }
+
+    rect
 }
 
 /// Create a circle.
-pub(super) fn circle<V: Into<svg::node::Value>>(x: V, y: V, r: V, fill: Color) -> Circle {
-    Circle::new()
-        .set("cx", x)
-        .set("cy", y)
-        .set("r", r)
-        .set("fill", String::from(fill))
+pub(super) fn create_circle<V: Into<svg::node::Value>>(
+    x: V,
+    y: V,
+    r: V,
+    fill: Option<Color>,
+    stroke: Option<Stroke>,
+) -> Circle {
+    let mut circle = Circle::new().set("cx", x).set("cy", y).set("r", r);
+
+    if let Some(fill) = fill {
+        circle = circle.set("fill", String::from(fill));
+    }
+
+    if let Some(stroke) = stroke {
+        circle = circle
+            .set("stroke", String::from(stroke.0))
+            .set("stroke-width", stroke.1);
+    }
+
+    circle
 }
 
 /// Create a line.
-pub(super) fn line<V: Into<svg::node::Value>>(
+pub(super) fn create_line<V: Into<svg::node::Value>>(
     x1: V,
     y1: V,
     x2: V,
@@ -118,7 +147,7 @@ pub(super) fn line<V: Into<svg::node::Value>>(
 }
 
 /// Create a text label.
-pub(super) fn text<V: Into<svg::node::Value>, S: Into<String>>(
+pub(super) fn create_text<V: Into<svg::node::Value>, S: Into<String>>(
     x: V,
     y: V,
     size: V,

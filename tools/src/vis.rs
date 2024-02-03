@@ -2,7 +2,7 @@ mod helpers;
 
 use crate::{
     io::{Input, Output},
-    vis::helpers::{circle, color, init_svg, rect, with_title},
+    vis::helpers::{create_circle, create_rect, get_color, init_svg, with_title},
 };
 use svg::Document;
 
@@ -19,6 +19,9 @@ pub struct VisResult {
     pub svg: Document,
 }
 
+const VIEW_SIZE: f64 = 600.0;
+const VIEW_PADDING: f64 = 10.0;
+
 /// **(CUSTOMIZE IT!)** Visualize the output
 pub(super) fn visualize(
     input: &Input,
@@ -29,13 +32,11 @@ pub(super) fn visualize(
         turn: outputs.len() - 1,
     });
 
-    const VIEW_SIZE: f64 = 600.0;
-    const VIEW_PADDING: f64 = 10.0;
     let mut doc = init_svg(VIEW_SIZE, VIEW_PADDING);
 
     // Draw Input
     let x = 30.0 * (input.n as f64 + 1.0);
-    doc = doc.add(rect(x, 10.0, 60.0, 60.0, color(0.5)));
+    doc = doc.add(create_rect(x, 10.0, 60.0, 60.0, Some(get_color(0.5)), None));
 
     todo!("Write code to visualize here.");
 
@@ -48,7 +49,10 @@ pub(super) fn visualize(
     let score = output.calc_score(input)?;
 
     let y = 10.0 * (output.k as f64 + 1.0);
-    doc = doc.add(with_title(circle(200., y, 20., "gray".into()), "hoge"));
+    doc = doc.add(with_title(
+        create_circle(200., y, 20., Some("gray".into()), None),
+        "hoge",
+    ));
 
     Ok(VisResult { score, svg: doc })
 }
