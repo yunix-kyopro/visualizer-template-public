@@ -8,16 +8,8 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-wasm-bindgen = "0.2.89"
-rand = { version = "=0.7.3", features = ["small_rng"] }
-rand_chacha = "=0.2.2"
-rand_distr = "=0.2.2"
-itertools = "=0.11.0"
-proconio = { version = "=0.3.6", features = ["derive"] }
-clap = { version = "4.0.22", features = ["derive"] }
-svg = "0.9.0"
-delaunator = "1.0.1"
-web-sys = { "version" = "0.3.44", features = ['console'] }
+wasm-bindgen = "0.2.90"
+web-sys = { "version" = "0.3.67", features = ['console'] }
 tools = { path = "../tools" }
 anyhow = "1.0.79"
 getrandom = { version = "0.2.12", features = ["js"] }
