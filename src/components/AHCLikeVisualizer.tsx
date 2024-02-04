@@ -68,7 +68,7 @@ const AHCLikeVisualizer: FC = () => {
         err: ret.err,
         score: Number(ret.score),
       });
-    } catch (e) {
+    } catch (e: any) {
       // visが失敗した場合にはエラーを出力する
       console.log(e);
       setVisualizerResult({
