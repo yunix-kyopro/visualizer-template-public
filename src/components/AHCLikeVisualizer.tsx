@@ -68,12 +68,16 @@ const AHCLikeVisualizer: FC = () => {
         err: ret.err,
         score: Number(ret.score),
       });
-    } catch (e: any) {
+    } catch (e) {
       // visが失敗した場合にはエラーを出力する
       console.log(e);
+      let msg = '';
+      if (e instanceof Error) {
+        msg = e.message;
+      }
       setVisualizerResult({
         svgString: 'invalid input or output',
-        err: e.message,
+        err: msg,
         score: 0,
       });
     }
