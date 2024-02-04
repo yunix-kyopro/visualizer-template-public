@@ -73,7 +73,7 @@ const AHCLikeVisualizer: FC = () => {
       console.log(e);
       setVisualizerResult({
         svgString: 'invalid input or output',
-        err: '',
+        err: e.message,
         score: 0,
       });
     }
