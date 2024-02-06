@@ -71,10 +71,7 @@ const AHCLikeVisualizer: FC = () => {
     } catch (e) {
       // visが失敗した場合にはエラーを出力する
       console.log(e);
-      let msg = '';
-      if (e instanceof Error) {
-        msg = e.message;
-      }
+      const msg = e instanceof Error ? e.message : 'unknown error';
       setVisualizerResult({
         svgString: 'invalid input or output',
         err: msg,
