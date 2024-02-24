@@ -19,6 +19,7 @@
     "prepare": "npx simple-git-hooks || :"
   },
   "dependencies": {
+    "@vercel/edge": "^1.1.1",
     "gif.js": "^0.2.0",
     "jszip": "^3.10.1",
     "react": "^18.2.0",

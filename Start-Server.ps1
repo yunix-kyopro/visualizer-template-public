@@ -1,4 +1,2 @@
-Push-Location .\wasm
-wasm-pack build --target web --out-dir ../public/wasm
-Pop-Location
+.\Build-Server.ps1
 yarn dev
