@@ -28,7 +28,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
     if (svg === null) return;
     const canvas = document.createElement('canvas');
     canvas.width = svg.width.baseVal.value;
-    canvas.height = svg.width.baseVal.value;
+    canvas.height = svg.height.baseVal.value;
     const ctx = canvas.getContext('2d');
     const image = new Image();
     image.onload = function () {
@@ -85,7 +85,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
       if (svg === null) return;
       const canvas = document.createElement('canvas');
       canvas.width = svg.width.baseVal.value;
-      canvas.height = svg.width.baseVal.value;
+      canvas.height = svg.height.baseVal.value;
       const ctx = canvas.getContext('2d');
       if (ctx === null) return;
       const image = new Image();
