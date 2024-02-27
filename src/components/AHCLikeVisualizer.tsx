@@ -21,6 +21,7 @@ const AHCLikeVisualizer: FC = () => {
 
   const [visualizerResult, setVisualizerResult] = useState<VisualizerResult>({
     svgString: '',
+    err: '',
     score: 0,
   });
 
@@ -62,11 +63,20 @@ const AHCLikeVisualizer: FC = () => {
         visualizerSettingInfo.turn
       );
       console.log(ret);
-      setVisualizerResult({ svgString: ret.svg, score: Number(ret.score) });
+      setVisualizerResult({
+        svgString: ret.svg,
+        err: ret.err,
+        score: Number(ret.score),
+      });
     } catch (e) {
       // visが失敗した場合にはエラーを出力する
       console.log(e);
-      setVisualizerResult({ svgString: 'invalid input or output', score: 0 });
+      const msg = e instanceof Error ? e.message : 'unknown error';
+      setVisualizerResult({
+        svgString: 'invalid input or output',
+        err: msg,
+        score: 0,
+      });
     }
   }, [
     visualizerSettingInfo.turn,
@@ -91,6 +101,7 @@ const AHCLikeVisualizer: FC = () => {
       <hr />
       <SvgViewer
         svgString={visualizerResult.svgString}
+        err={visualizerResult.err}
         score={visualizerResult.score}
       ></SvgViewer>
     </>

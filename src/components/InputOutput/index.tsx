@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { type VisualizerSettingInfo } from '../../types';
 import { useDownloadInput } from './hooks.ts';
 
-import styles from './index.module.css';
-
 type InputOutputProps = {
   visualizerSettingInfo: VisualizerSettingInfo;
   setVisualizerSettingInfo: React.Dispatch<
@@ -83,10 +81,10 @@ const InputOutput: FC<InputOutputProps> = ({
         <label>
           Input: <br />
           <textarea
-            className={styles.textArea} //eslint-disable-line
             rows={4}
             value={visualizerSettingInfo.input}
             onChange={onChangeInput}
+            style={{ width: '650px' }}
           ></textarea>
         </label>
       </div>
@@ -94,10 +92,10 @@ const InputOutput: FC<InputOutputProps> = ({
         <label>
           Output: <br />
           <textarea
-            className={styles.textArea} //eslint-disable-line
             rows={4}
             value={visualizerSettingInfo.output}
             onChange={onChangeOutput}
+            style={{ width: '650px' }}
           ></textarea>
         </label>
       </div>

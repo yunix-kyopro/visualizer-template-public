@@ -13,7 +13,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "baseUrl": "src",
-
+    "plugins": [
+      {
+        "name": "typescript-plugin-css-modules",
+      }
+    ],
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
