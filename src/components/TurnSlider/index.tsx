@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useState, useCallback, useEffect } from 'react';
 import { type VisualizerSettingInfo } from '../../types';
-import styles from './index.module.css';
 
 type TurnSliderProps = {
   visualizerSettingInfo: VisualizerSettingInfo;
@@ -77,9 +76,14 @@ const TurnSlider: FC<TurnSliderProps> = ({
       <p style={{ display: 'flex' }}>
         <input
           type="button"
-          className={styles.sliderButton}
           value={sliderContent}
           onClick={onClickSliderButton}
+          style={{
+            position: 'relative',
+            top: '5px',
+            width: '32px',
+            height: '32px',
+          }}
         />
         <label style={{ marginRight: '10px', marginLeft: '10px' }}>
           slow
@@ -88,8 +92,8 @@ const TurnSlider: FC<TurnSliderProps> = ({
             min="1"
             max="60"
             value={sliderSpeed}
-            className={styles.speedSlider}
             onChange={onChangeSliderSpeed}
+            style={{ width: '200px' }}
           />
           fast
         </label>
@@ -100,8 +104,8 @@ const TurnSlider: FC<TurnSliderProps> = ({
             value={visualizerSettingInfo.turn}
             min="0"
             max={visualizerSettingInfo.maxTurn}
-            className={styles.turnInput}
             onChange={onChangeTurn}
+            style={{ width: '70px', textAlign: 'right' }}
           />{' '}
         </label>
       </p>
@@ -111,8 +115,8 @@ const TurnSlider: FC<TurnSliderProps> = ({
           min="0"
           max={visualizerSettingInfo.maxTurn}
           value={visualizerSettingInfo.turn}
-          className={styles.turnSlider}
           onChange={onChangeTurn}
+          style={{ width: '780px' }}
         />
       </p>
     </>

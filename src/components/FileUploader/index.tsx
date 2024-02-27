@@ -55,12 +55,7 @@ const FileUploader: FC<FileUploaderProps> = ({ setVisualizerSettingInfo }) => {
             ))}
           </select>
         </label>
-        <input
-          type="file"
-          onChange={onFolderUpload}
-          directory="" // エディタでエラーが出るが気にしない
-          webkitdirectory=""
-        />
+        <input type="file" onChange={onFolderUpload} />
       </p>
     </>
   );

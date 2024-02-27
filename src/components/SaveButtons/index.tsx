@@ -22,14 +22,14 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
       visualizerSettingInfo.output,
       visualizerSettingInfo.turn
     );
-    const svg = new DOMParser()
+    const svg: any = new DOMParser()
       .parseFromString(ret.svg, 'image/svg+xml')
       .getElementById('vis');
     if (svg === null) return;
     const canvas = document.createElement('canvas');
     canvas.width = svg.width.baseVal.value;
     canvas.height = svg.width.baseVal.value;
-    const ctx = canvas.getContext('2d');
+    const ctx: any = canvas.getContext('2d');
     const image = new Image();
     image.onload = function () {
       ctx.drawImage(image, 0, 0);
@@ -68,7 +68,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
         String(Math.round(50 + 50 * p)).padStart(3, ' ') + '% finished';
         */
     });
-    function add_frame(t) {
+    function add_frame(t: any) {
       /*
       save_gif.value =
         String(Math.round((50.0 * t) / max_turn)).padStart(3, ' ') +
@@ -79,7 +79,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
         String(Math.round((50.0 * t) / maxTurn)).padStart(3, ' ') + '% finished'
       );
       const svgData = vis(input, output, t).svg;
-      const svg = new DOMParser()
+      const svg: any = new DOMParser()
         .parseFromString(svgData, 'image/svg+xml')
         .getElementById('vis');
       if (svg === null) return;
@@ -99,7 +99,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
         if (t < maxTurn) {
           add_frame(Math.min(t + step, maxTurn));
         } else {
-          gif.on('finished', function (blob) {
+          gif.on('finished', function (blob: any) {
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'vis.gif';
