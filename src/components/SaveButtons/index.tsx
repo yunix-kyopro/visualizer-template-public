@@ -10,7 +10,7 @@ type SvgViewerProps = {
 
 const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
   const [animationButtonDescription, setAnimationButtonDescription] = useState(
-    'Save as Aination GIF'
+    'Save as Animation GIF'
   );
 
   const [animationButtonDisabled, setAnimationButtonDisabled] = useState(false);
