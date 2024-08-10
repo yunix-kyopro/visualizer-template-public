@@ -15,7 +15,6 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
 
   const [animationButtonDisabled, setAnimationButtonDisabled] = useState(false);
 
-  /* eslint-disable */ // JavaScriptを書くことになるので、ESLintを無効化
   const onSavePng = useCallback(() => {
     const ret = vis(
       visualizerSettingInfo.input,
@@ -24,12 +23,12 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
     );
     const svg = new DOMParser()
       .parseFromString(ret.svg, 'image/svg+xml')
-      .getElementById('vis');
+      .getElementById('vis') as unknown as SVGSVGElement | null;
     if (svg === null) return;
     const canvas = document.createElement('canvas');
     canvas.width = svg.width.baseVal.value;
     canvas.height = svg.height.baseVal.value;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     const image = new Image();
     image.onload = function () {
       ctx.drawImage(image, 0, 0);
@@ -68,7 +67,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
         String(Math.round(50 + 50 * p)).padStart(3, ' ') + '% finished';
         */
     });
-    function add_frame(t) {
+    function addFrame(t: number) {
       /*
       save_gif.value =
         String(Math.round((50.0 * t) / max_turn)).padStart(3, ' ') +
@@ -81,7 +80,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
       const svgData = vis(input, output, t).svg;
       const svg = new DOMParser()
         .parseFromString(svgData, 'image/svg+xml')
-        .getElementById('vis');
+        .getElementById('vis') as unknown as SVGSVGElement | null;
       if (svg === null) return;
       const canvas = document.createElement('canvas');
       canvas.width = svg.width.baseVal.value;
@@ -91,13 +90,13 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
       const image = new Image();
       image.onload = function () {
         ctx.drawImage(image, 0, 0);
-        if (t == maxTurn) {
+        if (t === maxTurn) {
           gif.addFrame(canvas, { delay: 3000 });
         } else {
           gif.addFrame(canvas, { delay: delay });
         }
         if (t < maxTurn) {
-          add_frame(Math.min(t + step, maxTurn));
+          addFrame(Math.min(t + step, maxTurn));
         } else {
           gif.on('finished', function (blob) {
             const a = document.createElement('a');
@@ -116,7 +115,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
         'data:image/svg+xml;charset=utf-8;base64,' +
         btoa(unescape(encodeURIComponent(svgData)));
     }
-    add_frame(0);
+    addFrame(0);
   }, [
     visualizerSettingInfo.input,
     visualizerSettingInfo.output,
@@ -124,7 +123,6 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
     setAnimationButtonDescription,
     setAnimationButtonDisabled,
   ]);
-  /* eslint-enable */
 
   return (
     <>
