@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useState, useCallback, useEffect } from 'react';
 import { type VisualizerSettingInfo } from '../../types';
-import styles from './index.module.css';
+import './index.module.css';
 
 type TurnSliderProps = {
   visualizerSettingInfo: VisualizerSettingInfo;
@@ -45,9 +45,9 @@ const TurnSlider: FC<TurnSliderProps> = ({
 
   const startSlider = useCallback(() => {
     setSliderContent('■');
-    const tickMilliSec =
+    const tickMilliSeconds =
       (1000 * 300) / visualizerSettingInfo.maxTurn / sliderSpeed; // 1000 / sliderSpeed;
-    const id = setInterval(incrementTurn, tickMilliSec);
+    const id = setInterval(incrementTurn, tickMilliSeconds);
     setIntervalId(id);
   }, [
     setIntervalId,
@@ -57,7 +57,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
     incrementTurn,
   ]);
 
-  // turnがmaxturnになったらタイマーを止める
+  // turnがmaxTurnになったらタイマーを止める
   useEffect(() => {
     if (visualizerSettingInfo.turn === visualizerSettingInfo.maxTurn) {
       stopSlider();
@@ -77,7 +77,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
       <p style={{ display: 'flex' }}>
         <input
           type="button"
-          className={styles.sliderButton}
+          className="sliderButton"
           value={sliderContent}
           onClick={onClickSliderButton}
         />
@@ -88,7 +88,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
             min="1"
             max="60"
             value={sliderSpeed}
-            className={styles.speedSlider}
+            className="speedSlider"
             onChange={onChangeSliderSpeed}
           />
           fast
@@ -100,7 +100,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
             value={visualizerSettingInfo.turn}
             min="0"
             max={visualizerSettingInfo.maxTurn}
-            className={styles.turnInput}
+            className="turnInput"
             onChange={onChangeTurn}
           />{' '}
         </label>
@@ -111,7 +111,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
           min="0"
           max={visualizerSettingInfo.maxTurn}
           value={visualizerSettingInfo.turn}
-          className={styles.turnSlider}
+          className="turnSlider"
           onChange={onChangeTurn}
         />
       </p>
