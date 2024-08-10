@@ -24,12 +24,12 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
     );
     const svg = new DOMParser()
       .parseFromString(ret.svg, 'image/svg+xml')
-      .getElementById('vis');
+      .getElementById('vis') as unknown as SVGSVGElement | null;
     if (svg === null) return;
     const canvas = document.createElement('canvas');
     canvas.width = svg.width.baseVal.value;
     canvas.height = svg.height.baseVal.value;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     const image = new Image();
     image.onload = function () {
       ctx.drawImage(image, 0, 0);
@@ -68,7 +68,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
         String(Math.round(50 + 50 * p)).padStart(3, ' ') + '% finished';
         */
     });
-    function add_frame(t) {
+    function add_frame(t: number) {
       /*
       save_gif.value =
         String(Math.round((50.0 * t) / max_turn)).padStart(3, ' ') +
@@ -81,7 +81,7 @@ const SvgViewer: FC<SvgViewerProps> = ({ visualizerSettingInfo }) => {
       const svgData = vis(input, output, t).svg;
       const svg = new DOMParser()
         .parseFromString(svgData, 'image/svg+xml')
-        .getElementById('vis');
+        .getElementById('vis') as unknown as SVGSVGElement | null;
       if (svg === null) return;
       const canvas = document.createElement('canvas');
       canvas.width = svg.width.baseVal.value;
