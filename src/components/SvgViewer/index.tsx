@@ -9,7 +9,9 @@ type SvgViewerProps = {
 const SvgViewer: FC<SvgViewerProps> = ({ svgString, err, score }) => {
   return (
     <>
-      <div>score={score} {err && <span style={{color: "red"}}>({err})</span>}</div>
+      <div>
+        score={score} {err && <span style={{ color: 'red' }}>({err})</span>}
+      </div>
       <div
         dangerouslySetInnerHTML={{
           __html: svgString,
