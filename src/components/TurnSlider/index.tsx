@@ -44,9 +44,9 @@ const TurnSlider: FC<TurnSliderProps> = ({
 
   const startSlider = useCallback(() => {
     setSliderContent('■');
-    const tickMilliSec =
+    const tickMilliseconds =
       (1000 * 300) / visualizerSettingInfo.maxTurn / sliderSpeed; // 1000 / sliderSpeed;
-    const id = setInterval(incrementTurn, tickMilliSec);
+    const id = setInterval(incrementTurn, tickMilliseconds);
     setIntervalId(id);
   }, [
     setIntervalId,
@@ -56,7 +56,7 @@ const TurnSlider: FC<TurnSliderProps> = ({
     incrementTurn,
   ]);
 
-  // turnがmaxturnになったらタイマーを止める
+  // turnがmaxTurnになったらタイマーを止める
   useEffect(() => {
     if (visualizerSettingInfo.turn === visualizerSettingInfo.maxTurn) {
       stopSlider();

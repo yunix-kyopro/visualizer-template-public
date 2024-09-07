@@ -13,6 +13,23 @@ const FileUploader: FC<FileUploaderProps> = ({ setVisualizerSettingInfo }) => {
 
   const [files, setFiles] = useState<File[]>([]);
 
+  const setFileToOutput = (file: File) => {
+    const fileName = file.name;
+    const match = fileName.match(/(?:.*_)?(\d+)\..*/);
+    if (match !== null) {
+      const seed = parseInt(match[1], 10);
+      const fileReader = new FileReader();
+      fileReader.readAsText(file);
+      fileReader.onload = () => {
+        setVisualizerSettingInfo((prev) => ({
+          ...prev,
+          seed,
+          output: fileReader.result as string,
+        }));
+      };
+    }
+  };
+
   const onFolderUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files === null) return;
     const uploadedFiles = Array.from(e.target.files);
@@ -20,30 +37,22 @@ const FileUploader: FC<FileUploaderProps> = ({ setVisualizerSettingInfo }) => {
     if (uploadedFiles.length > 0) {
       setSelectDisabled(false);
       setFiles(uploadedFiles);
+      setFileToOutput(uploadedFiles[0]);
     }
   };
 
   const onSelectFile = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const fileName = e.target.value;
     const file = files.find((file) => file.name === e.target.value);
     if (file !== undefined) {
-      const match = fileName.match(/(?:.*_)?(\d+)\..*/);
-      if (match !== null) {
-        const seed = parseInt(match[1], 10);
-        const fileReader = new FileReader();
-        fileReader.readAsText(file);
-        fileReader.onload = () => {
-          setVisualizerSettingInfo((prev) => ({
-            ...prev,
-            seed,
-            output: fileReader.result as string,
-          }));
-        };
-      }
+      setFileToOutput(file);
     }
   };
 
-  /* eslint-disable react/no-unknown-property */
+  const otherAtt = {
+    directory: '',
+    webkitdirectory: '',
+  };
+
   return (
     <>
       <p>
@@ -55,17 +64,10 @@ const FileUploader: FC<FileUploaderProps> = ({ setVisualizerSettingInfo }) => {
             ))}
           </select>
         </label>
-        <input
-          type="file"
-          onChange={onFolderUpload}
-          /* @ts-expect-error なんか失敗する */
-          directory=""
-          webkitdirectory=""
-        />
+        <input type="file" onChange={onFolderUpload} {...otherAtt} />
       </p>
     </>
   );
-  /* eslint-enable react/no-unknown-property */
 };
 
 export default FileUploader;
