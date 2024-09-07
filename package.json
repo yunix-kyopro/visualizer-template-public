@@ -22,9 +22,16 @@
     "gif.js": "^0.2.0",
     "jszip": "^3.10.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.26.0"
   },
   "devDependencies": {
+    "@types/eslint": "~9.6.0",
+    "@types/eslint-config-prettier": "~6.11.3",
+    "@types/eslint-plugin-jsx-a11y": "~6.9.0",
+    "@types/gif.js": "~0.2.5",
+    "@types/lint-staged": "~13.2.2",
+    "@types/prettier": "~3.0.0",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
