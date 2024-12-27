@@ -63,8 +63,8 @@ pub fn gen(seed: u64) -> Input {
 
     let mut uv: Vec<(usize, usize)> = vec![];
     while uv.len() < 15 {
-        let u = rng.gen_range(100, 901);
-        let v = rng.gen_range(100, 901);
+        let u = rng.gen_range(100..901);
+        let v = rng.gen_range(100..901);
 
         let mut flag = 0;
         for (uval, vval) in uv.iter() {
@@ -85,9 +85,9 @@ pub fn gen(seed: u64) -> Input {
 
     let mut xy: Vec<(usize, usize)> = vec![];
     for i in 0..100 {
-        let base = rng.gen_range(0, 15);
-        let x = uv[base].0 + rng.gen_range(0, 201) - 100;
-        let y = uv[base].1 + rng.gen_range(0, 201) - 100;
+        let base = rng.gen_range(0..15);
+        let x = uv[base].0 + rng.gen_range(0..201) - 100;
+        let y = uv[base].1 + rng.gen_range(0..201) - 100;
         xy.push((x, y));
     }
 
