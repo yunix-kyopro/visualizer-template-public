@@ -80,7 +80,7 @@ pub fn gen(seed: u64) -> Input {
     let s = (0..n)
         .map(|_| {
             (0..n)
-                .map(|_| rng.gen_range(1, k + 1).to_string())
+                .map(|_| rng.gen_range(1..k + 1).to_string())
                 .collect::<String>()
         })
         .collect::<Vec<_>>();
