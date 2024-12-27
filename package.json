@@ -31,6 +31,7 @@
     "@types/eslint-plugin-jsx-a11y": "~6.9.0",
     "@types/gif.js": "~0.2.5",
     "@types/lint-staged": "~13.2.2",
+    "@types/prettier": "~3.0.0",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.43.0",
