@@ -1,8 +1,8 @@
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub fn gen(seed: i32) -> String {
-    "".to_string()
+pub fn gen(seed: i32, problemId: String) -> String {
+    problemId
 }
 
 #[wasm_bindgen(getter_with_clone)]

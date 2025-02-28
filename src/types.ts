@@ -4,6 +4,7 @@ export type VisualizerSettingInfo = {
   seed: number;
   turn: number;
   maxTurn: number;
+  problemId: string;
 };
 
 export type VisualizerResult = {
