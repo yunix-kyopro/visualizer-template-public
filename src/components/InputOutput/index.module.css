@@ -1,3 +1,7 @@
-.textArea{
-    width: 650px;
+.textArea {
+  width: 650px;
+}
+
+.leftMargin {
+  margin-left: 10px;
 }

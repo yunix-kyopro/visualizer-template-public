@@ -40,12 +40,18 @@ const InputOutput: FC<InputOutputProps> = ({
     }));
   };
 
+  const onChangeProblemId = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setVisualizerSettingInfo((prev) => ({
+      ...prev,
+      problemId: e.target.value,
+    }));
+  };
+
   return (
     <>
       <div>
         <label>
           Seed:
-          <br />
           <input
             type="number"
             value={visualizerSettingInfo.seed}
@@ -54,7 +60,9 @@ const InputOutput: FC<InputOutputProps> = ({
             onChange={onChangeSeed}
           />
         </label>
-        <label>
+        <label
+          className={styles.leftMargin} //eslint-disable-line
+        >
           #cases:
           <input
             type="number"
@@ -73,11 +81,28 @@ const InputOutput: FC<InputOutputProps> = ({
           onClick={() => {
             downloadInput(
               visualizerSettingInfo.seed,
+              visualizerSettingInfo.problemId,
               downloadCases,
-              setButtonText
+              setButtonText,
             );
           }}
         />
+
+        <label
+          className={styles.leftMargin} //eslint-disable-line
+        >
+          問題番号:
+          <select
+            value={visualizerSettingInfo.problemId}
+            onChange={(e) => {
+              onChangeProblemId(e);
+            }}
+          >
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+          </select>
+        </label>
       </div>
       <div>
         <label>
