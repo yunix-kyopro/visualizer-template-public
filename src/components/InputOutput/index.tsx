@@ -47,6 +47,19 @@ const InputOutput: FC<InputOutputProps> = ({
     }));
   };
 
+  const onDropFileIntoInput = async (
+    e: React.DragEvent<HTMLTextAreaElement>,
+  ) => {
+    e.preventDefault();
+    const text = await e.dataTransfer.items[0].getAsFile()?.text();
+    if (text !== undefined) {
+      setVisualizerSettingInfo((prev) => ({
+        ...prev,
+        input: text,
+      }));
+    }
+  };
+
   return (
     <>
       <div>
@@ -112,6 +125,7 @@ const InputOutput: FC<InputOutputProps> = ({
             rows={4}
             value={visualizerSettingInfo.input}
             onChange={onChangeInput}
+            onDrop={onDropFileIntoInput}
           ></textarea>
         </label>
       </div>
