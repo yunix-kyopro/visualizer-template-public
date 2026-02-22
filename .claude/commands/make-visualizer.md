@@ -16,26 +16,24 @@
 
 ## ステップ2: 問題仕様の把握（最小限の読み込み）
 
-以下の**3ファイルだけ**を読んで仕様を把握してください:
+以下の**2ファイルだけ**を読んで仕様を把握してください:
 
 1. `problem_description.txt` — 入出力フォーマット・スコア計算式を確認
-2. `tools/src/` 直下の **`*.rs` ファイル一覧** を確認し、`gen` / `score` / `calc` などの関数が含まれるファイルを特定する（全部読まなくてよい、関数名だけ把握する）
-3. `wasm/Cargo.toml` — 利用可能なクレートを確認
+2. `tools/src/` 直下の `.rs` ファイル一覧を確認し、どのファイルに何が入っているか大まかに把握する
+3. `wasm/Cargo.toml` — 利用可能なクレートをさらっと確認する（深く読む必要はない。ビルドエラーでバージョン不一致が出た場合のみ戻って修正する）
 
 仕様の把握ができたら実装に進んでください（このステップで実装は行わない）。
 
 ---
 
-## ステップ3: tools/src のコードを wasm/src/lib.rs へ丸ごとコピー
+## ステップ3: wasm/src/impl.rs を新規作成して tools/src のコードを移植
 
-**`tools/src/` のコードはほぼ全て `wasm/src/lib.rs` にそのまま移植できる。**
+**`wasm/src/impl.rs`** を新規作成し、`tools/src/` のコードをそこにコピーする。
+`lib.rs` はこのファイルを呼び出す薄いラッパーとして保つ。
 
-新しく書く必要があるのは主に SVG 描画部分。それ以外は全てコピーして使い回すことが多い。
-ただし、WASM インターフェースとの兼ね合いで一部の関数シグネチャや戻り値の型を若干調整することがある。
+### impl.rs にコピーする対象
 
-### コピーする対象
-
-`tools/src/` 内の全ファイルを読み、以下を含むコードを**全て** `lib.rs` にコピーする:
+`tools/src/` 内の全ファイルを読み、以下を含むコードを**全て** `impl.rs` にコピーする:
 
 - **各種構造体**（入力・出力・状態を表す struct/enum）
 - **入力生成関数**（`gen`, `generate`, `make_input` など）
@@ -44,72 +42,77 @@
 - **状態遷移・操作適用ロジック**（`apply`, `simulate`, `step` など）
 - **各種ユーティリティ・ヘルパー関数**
 
-コピー後に WASM と非互換な箇所だけ修正する:
+新しく書く必要があるのは主に SVG 描画部分。それ以外は全てコピーして使い回すことが多い。
+ただし、WASM インターフェースとの兼ね合いで一部の関数シグネチャや戻り値の型を若干調整することがある。
+
+### コピー後に修正する箇所（WASM 非互換部分のみ）
+
 - `eprintln!` / `println!` → 削除するか `web_sys::console::log_1` に変更
 - `use std::io` などのファイルI/O → 削除
 - `fn main()` → 削除
 - `proconio::input!` はそのまま使える（`OnceSource::from(str)` 経由で）
-- `#[wasm_bindgen]` は外部から呼ぶ3関数（`gen`, `vis`, `get_max_turn`）にのみ付ける
-
-### `gen()` の実装
-
-```rust
-#[wasm_bindgen]
-pub fn gen(seed: i32, problemId: String) -> String {
-    use rand::SeedableRng;
-    use rand_chacha::ChaCha20Rng;
-    let mut rng = ChaCha20Rng::seed_from_u64(seed as u64);
-    // tools/src/ の入力生成ロジックをここに移植
-}
-```
-
-### `get_max_turn()` の実装
-
-出力を行に分割してターン数を数えるだけのケースが多い:
-
-```rust
-#[wasm_bindgen]
-pub fn get_max_turn(_input: String, output: String) -> usize {
-    if output.trim().is_empty() {
-        return 0;
-    }
-    // 多くの場合は output.lines().count() でOK
-    // 問題によって調整する
-    output.trim().lines().count()
-}
-```
+- `#[wasm_bindgen]` は `lib.rs` 側の3関数にのみ付ける（`impl.rs` には付けない）
 
 ---
 
-## ステップ4: vis() の実装（SVG描画）
+## ステップ4: lib.rs を実装
 
-`vis()` は SVG を返す。tools/src/ のスコア計算を使いつつ、状態を SVG で描画する。
+`wasm/src/lib.rs` は `impl.rs` を呼び出す薄いラッパーとして実装する。
 
 ```rust
+mod impl_vis;
+use impl_vis::*;
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen(getter_with_clone)]
+pub struct Ret {
+    pub score: i64,
+    pub err: String,
+    pub svg: String,
+}
+
+#[wasm_bindgen]
+pub fn gen(seed: i32, problemId: String) -> String {
+    impl_vis::generate(seed, &problemId)  // impl.rs の関数を呼ぶ
+}
+
+#[wasm_bindgen]
+pub fn get_max_turn(input: String, output: String) -> usize {
+    if output.trim().is_empty() {
+        return 0;
+    }
+    impl_vis::calc_max_turn(&input, &output)  // impl.rs の関数を呼ぶ
+}
+
 #[wasm_bindgen]
 pub fn vis(input: String, output: String, turn: usize) -> Ret {
-    match vis_inner(&input, &output, turn) {
+    match impl_vis::visualize(&input, &output, turn) {
         Ok(ret) => ret,
         Err(e) => Ret { score: 0, err: e.to_string(), svg: String::new() },
     }
 }
+```
 
-fn vis_inner(input: &str, output: &str, turn: usize) -> Result<Ret, Box<dyn std::error::Error>> {
-    // 1. 入力をパース（tools/src/ のパース関数を流用）
+※ 関数名は `impl.rs` に定義した実際の名前に合わせて調整すること。
+
+### impl.rs での vis 実装パターン
+
+```rust
+pub fn visualize(input: &str, output: &str, turn: usize) -> Result<Ret, Box<dyn std::error::Error>> {
+    // 1. 入力をパース（impl.rs 内のパース関数を流用）
     // 2. 出力をパースして turn 番目までの操作を取得
-    // 3. 状態を計算（tools/src/ のスコア計算関数を流用）
+    // 3. 状態を計算（impl.rs 内のスコア計算関数を流用）
     // 4. SVGを描画して返す
-
     let svg = draw_svg(/* 状態 */)?;
     Ok(Ret { score: /* スコア */, err: String::new(), svg })
 }
 ```
 
-SVG描画の基本パターン:
+### SVG描画の基本パターン
 
 ```rust
 use svg::Document;
-use svg::node::element::{Rectangle, Circle, Line, Text};
+use svg::node::element::{Rectangle, Circle, Line};
 
 fn draw_svg(/* 状態の引数 */) -> Result<String, Box<dyn std::error::Error>> {
     let size = 600;
@@ -145,17 +148,19 @@ cd wasm && wasm-pack build --target web --out-dir ../public/wasm && cd ..
 yarn dev
 ```
 
+- ビルドエラーが出たらまず `cd wasm && cargo check` で原因を特定する
+- クレートが足りない場合のみ `wasm/Cargo.toml` を確認・追加する
+
 ブラウザで確認:
 1. seed 入力 → 入力エリアに問題入力が表示される（`gen` OK）
 2. 出力貼り付け → スライダーの上限が更新される（`get_max_turn` OK）
 3. スライダーを動かす → SVG が描画される（`vis` OK）
 
-ビルドエラーが出た場合は `cd wasm && cargo check` で原因を特定してから修正する。
-
 ---
 
 ## 注意事項
 
-- `getrandom` は `features = ["js"]` が必要（すでに Cargo.toml に設定済みのはず）
+- `wasm/Cargo.toml` はさらっと確認する程度でよい。バージョン不一致などのビルドエラーが出た時に戻って修正する
+- `getrandom` は `features = ["js"]` が必要（すでに設定済みのはず）
 - `proconio::input!` は `OnceSource::from(input.as_str())` と組み合わせて使う
-- `wasm-pack build` が遅い場合、まず `cargo check` でエラーがないか確認してから実行する
+- `impl.rs` のモジュール名はファイル名に合わせる（`mod impl_vis;` など。`impl` はRustの予約語のため使えない）
