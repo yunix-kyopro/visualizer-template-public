@@ -19,8 +19,15 @@
 以下の**2ファイルだけ**を読んで仕様を把握してください:
 
 1. `problem_description.txt` — 入出力フォーマット・スコア計算式を確認
-2. `tools/src/` 直下の `.rs` ファイル一覧を確認し、どのファイルに何が入っているか大まかに把握する
+2. `tools/src/lib.rs` — 構造体・関数シグネチャを把握する（**`bin/` 以下は読まない**）
 3. `wasm/Cargo.toml` — 利用可能なクレートをさらっと確認する（深く読む必要はない。ビルドエラーでバージョン不一致が出た場合のみ戻って修正する）
+
+### tools/src/lib.rs の読み方
+- スコア計算・入力生成のロジック内部は**理解不要**。ブラックボックスとして使う
+- 把握すべきは以下のみ:
+  - 公開されている関数のシグネチャ（`fn gen(...)`, `fn parse_input(...)`, `fn compute_score_details(...)` など）
+  - 構造体の定義（`Input`, `Output`, `Action` など）
+- ロジックの詳細を読もうとしなくてよい。必要になったら都度参照する
 
 仕様の把握ができたら実装に進んでください（このステップで実装は行わない）。
 
@@ -87,24 +94,37 @@ pub fn get_max_turn(input: String, output: String) -> usize {
 #[wasm_bindgen]
 pub fn vis(input: String, output: String, turn: usize) -> Ret {
     match impl_vis::visualize(&input, &output, turn) {
-        Ok(ret) => ret,
-        Err(e) => Ret { score: 0, err: e.to_string(), svg: String::new() },
+        Ok((score, err, svg)) => Ret { score, err, svg },
+        Err(e) => Ret { score: 0, err: e, svg: String::new() },
     }
 }
 ```
 
 ※ 関数名は `impl.rs` に定義した実際の名前に合わせて調整すること。
 
-### impl.rs での vis 実装パターン
+### impl.rs / lib.rs 間の Ret の扱い
+
+`Ret` 構造体は **lib.rs 側で定義**する（`#[wasm_bindgen]` を impl.rs に付けないため）。
+`impl_vis::visualize` は `Result<(i64, String, String), String>` を返し、lib.rs 側でタプルを `Ret` に変換する。
 
 ```rust
-pub fn visualize(input: &str, output: &str, turn: usize) -> Result<Ret, Box<dyn std::error::Error>> {
+// ---- impl_vis.rs ----
+pub fn visualize(input: &str, output: &str, turn: usize) -> Result<(i64, String, String), String> {
     // 1. 入力をパース（impl.rs 内のパース関数を流用）
     // 2. 出力をパースして turn 番目までの操作を取得
     // 3. 状態を計算（impl.rs 内のスコア計算関数を流用）
     // 4. SVGを描画して返す
     let svg = draw_svg(/* 状態 */)?;
-    Ok(Ret { score: /* スコア */, err: String::new(), svg })
+    Ok((score, String::new(), svg))  // (score, err, svg) のタプルで返す
+}
+
+// ---- lib.rs ----
+#[wasm_bindgen]
+pub fn vis(input: String, output: String, turn: usize) -> Ret {
+    match impl_vis::visualize(&input, &output, turn) {
+        Ok((score, err, svg)) => Ret { score, err, svg },
+        Err(e) => Ret { score: 0, err: e, svg: String::new() },
+    }
 }
 ```
 
@@ -113,11 +133,12 @@ pub fn visualize(input: &str, output: &str, turn: usize) -> Result<Ret, Box<dyn 
 ```rust
 use svg::Document;
 use svg::node::element::{Rectangle, Circle, Line};
+use svg::node::element::Text as SvgText;  // テキストラベル
 
 fn draw_svg(/* 状態の引数 */) -> Result<String, Box<dyn std::error::Error>> {
     let size = 600;
     let mut doc = Document::new()
-        .set("viewBox", (0, 0, size, size))
+        .set("viewBox", format!("0 0 {} {}", size, size))
         .set("width", size).set("height", size);
 
     // 矩形
@@ -134,6 +155,13 @@ fn draw_svg(/* 状態の引数 */) -> Result<String, Box<dyn std::error::Error>>
     doc = doc.add(Line::new()
         .set("x1", x1).set("y1", y1).set("x2", x2).set("y2", y2)
         .set("stroke", "#000").set("stroke-width", 2));
+
+    // テキスト（svg 0.17: Text::new() は文字列を引数に取る）
+    doc = doc.add(SvgText::new("ラベル")
+        .set("x", x).set("y", y)
+        .set("text-anchor", "middle")
+        .set("font-size", 12)
+        .set("fill", "#ffffff"));
 
     Ok(doc.to_string())
 }
