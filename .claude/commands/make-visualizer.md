@@ -16,32 +16,28 @@
 
 ---
 
-## ステップ2: 問題仕様の把握（最小限の読み込み）
+## ステップ2: ファイルを読んで wasm/src/impl_vis.rs を実装
+
+### 読むファイル
+
+以下を読んで仕様を把握し、**そのまま実装まで続けること**（読んだ後に止まらない）:
 
 1. `problem_description.txt` — 入出力フォーマット・スコア計算式を確認
-2. `tools/src/lib.rs` — 構造体と関数シグネチャを把握する（**`bin/` 以下は読まない**）
-   - 指示がなければロジックの詳細は理解しなくていい。ブラックボックスとして使う
-   - まず把握すべきは: 公開関数のシグネチャ（`fn gen(...)` など）と構造体定義（`Input`, `Output`, `Action` など）
-3. `wasm/Cargo.toml` — さらっと確認する程度でよい。バージョン不一致のビルドエラーが出た時だけ戻って修正する
-
-仕様の把握ができたら実装に進む（このステップで実装は行わない）。
-
----
-
-## ステップ3: wasm/src/impl_vis.rs に実装
-
-`wasm/src/impl_vis.rs` はプレースホルダーとして既に存在しています。
-**このファイルを上書きして**、`tools/src/` のコードを移植し、3つの `pub fn` を実装してください。
+2. `tools/src/lib.rs` — 構造体と関数シグネチャを把握する
+   - **`tools/src/bin/` 以下は読まない**
+   - 把握すべきは: 公開関数のシグネチャ（`fn gen(...)` など）と構造体定義（`Input`, `Output` など）
+   - ロジックの詳細は理解しなくていい。コードはそのままコピーして使う
 
 ### impl_vis.rs に書くもの
 
-`tools/src/` 内の全ファイルを読み、以下を全てコピーして使い回す:
+`wasm/src/impl_vis.rs` はプレースホルダーとして既に存在しています。**このファイルを上書きして**実装してください。
+
+`tools/src/lib.rs` 内の以下を全てコピーして使い回す:
 - 各種構造体・enum（`Input`, `Output`, `Action` など）
 - 入力生成・パース・スコア計算・状態遷移などの全ロジック
 - 各種ユーティリティ・ヘルパー関数
 
-新しく書くのは主に SVG 描画部分（`draw_svg` など）。ロジックは全てコピーして流用できることが多い。
-ただし、WASM インターフェースとの兼ね合いで一部の関数シグネチャや型を若干調整することがある。
+新しく書くのは主に SVG 描画部分（`draw_svg` など）。
 
 ### WASM 非互換な箇所だけ修正する
 
@@ -61,7 +57,7 @@ pub fn visualize(input: &str, output: &str, turn: usize) -> Result<(i64, String,
 //                                                                    ^score  ^err    ^svg
 ```
 
-`get_max_turn` の注意: **0 を返すとスライダーが動かない**。出力が空でなければ必ず 1 以上を返すこと。
+`calc_max_turn` の注意: **0 を返すとスライダーが動かない**。出力が空でなければ必ず 1 以上を返すこと。
 
 ### visualize の実装パターン
 
@@ -112,26 +108,28 @@ fn draw_svg(/* 状態の引数 */) -> Result<String, Box<dyn std::error::Error>>
 }
 ```
 
----
-
-## ステップ4: lib.rs の確認（通常変更不要）
-
-`wasm/src/lib.rs` は既に `impl_vis` を呼び出すラッパーとして実装済みです。
-`impl_vis.rs` の関数名をデフォルト（`generate` / `calc_max_turn` / `visualize`）から変えた場合のみ修正してください。
+> **注意**: `wasm/src/lib.rs` の確認は通常不要。`generate` / `calc_max_turn` / `visualize` 以外の関数名を使った場合のみ修正すること。
 
 ---
 
-## ステップ5: ビルドと動作確認
+## ステップ3: ビルドと動作確認
+
+まず `cargo check` でコンパイルエラーを確認し、通ったら `wasm-pack build` を実行する:
 
 ```bash
-cd wasm && wasm-pack build --target web --out-dir ../public/wasm && cd ..
-yarn dev
+cd wasm && cargo check
 ```
 
-- ビルドエラーが出たらまず `cd wasm && cargo check` で原因を特定する
+エラーがなければ:
+
+```bash
+wasm-pack build --target web --out-dir ../public/wasm
+```
+
+- `cargo check` でエラーが出たら原因を特定して修正してから `wasm-pack build` を実行する
 - クレートのバージョン不一致が原因の場合のみ `wasm/Cargo.toml` を修正する
 
-ブラウザで確認:
+ビルドが完了したらユーザーに `yarn dev` でサーバーを起動して動作確認するよう伝える:
 1. seed 入力 → 入力エリアに問題入力が表示される（`gen` OK）
 2. 出力貼り付け → スライダーの上限が更新される（`get_max_turn` OK）
 3. スライダーを動かす → SVG が描画される（`vis` OK）

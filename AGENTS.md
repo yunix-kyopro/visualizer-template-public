@@ -23,12 +23,14 @@ visualizer-template-public/
 
 ## ビジュアライザ実装の基本方針
 
-**`tools/src/` のコードはほぼ全て `wasm/src/impl_vis.rs` にそのまま移植できる。新しく書く必要があるのは主に SVG 描画部分で、それ以外はコピーして使い回せることが多い。ただし、WASM インターフェースとの兼ね合いで一部の関数シグネチャや型を若干調整することがある。**
+**`tools/src/lib.rs` のコードはほぼ全て `wasm/src/impl_vis.rs` にそのまま移植できる。新しく書く必要があるのは主に SVG 描画部分で、それ以外はコピーして使い回せることが多い。ただし、WASM インターフェースとの兼ね合いで一部の関数シグネチャや型を若干調整することがある。**
 
-`tools/src/` 内の以下を全て `impl_vis.rs` にコピーして使い回す：
+`tools/src/lib.rs` 内の以下を全て `impl_vis.rs` にコピーして使い回す：
 - 各種構造体・enum（`Input`, `Output`, `Action` など）
 - 入力生成・パース・スコア計算・状態遷移などのロジック
 - 各種ユーティリティ・ヘルパー関数
+
+**`tools/src/bin/` 以下は読まない**。lib.rs のみ参照すること。
 
 コピー後に WASM と非互換な箇所だけ修正する：
 - `eprintln!` / `println!` → 削除または `web_sys::console::log_1` に変更
@@ -47,16 +49,13 @@ visualizer-template-public/
 - `problem_description.txt` を読んでプレースホルダーのままなら停止して「problem_description.txt に問題文を記載してください」と伝える
 - `tools/src/` が存在しなければ停止して「公式から配布されるテスターコードを `tools/src/` に配置してください」と伝える
 
-### 2. 仕様把握（最小限の読み込み）
+### 2. ファイルを読んで impl_vis.rs を実装
+
+以下を読んで把握し、**読み終わったら即座に実装に入ること**（読んだ後に止まらない）:
 
 1. `problem_description.txt` — 入出力フォーマット・スコア計算式
 2. `tools/src/lib.rs` — 構造体と関数シグネチャを把握（**`bin/` 以下は読まない**）
-   - 指示がなければロジック内部は理解しなくていい。まず公開関数のシグネチャと構造体定義を把握する
-3. `wasm/Cargo.toml` — さらっと確認する程度。バージョン不一致のビルドエラー時に戻って修正する
-
-### 3. wasm/src/impl_vis.rs を実装（上書き）
-
-`impl_vis.rs` はプレースホルダーとして既に存在しています。**上書きして実装してください。**
+   - ロジック内部は理解しなくていい。公開関数のシグネチャと構造体定義を把握したら実装へ
 
 `lib.rs` から以下のシグネチャで呼び出されるため、**必ずこの関数名・シグネチャで実装すること**:
 
@@ -69,12 +68,9 @@ pub fn visualize(input: &str, output: &str, turn: usize) -> Result<(i64, String,
 
 `calc_max_turn` の注意: **0 を返すとスライダーが動かない**。出力が空でなければ 1 以上を返すこと。
 
-### 4. lib.rs の確認（通常変更不要）
+> **`wasm/src/lib.rs` の確認は通常不要**。`generate` / `calc_max_turn` / `visualize` 以外の関数名を使った場合のみ修正すること。
 
-`wasm/src/lib.rs` は実装済みで、`impl_vis` の上記3関数を呼び出すラッパーになっています。
-関数名をデフォルトから変えた場合のみ修正してください。
-
-### 5. SVG描画の基本パターン（impl_vis.rs 内）
+### 3. SVG描画の基本パターン（impl_vis.rs 内）
 
 ```rust
 use svg::Document;
@@ -100,16 +96,24 @@ fn draw_svg(/* 状態の引数 */) -> Result<String, Box<dyn std::error::Error>>
 }
 ```
 
-### 6. ビルドと動作確認
+### 4. ビルドと動作確認
+
+まず `cargo check` でエラーを確認してから `wasm-pack build` を実行する:
 
 ```bash
-cd wasm && wasm-pack build --target web --out-dir ../public/wasm && cd ..
-yarn dev
+cd wasm && cargo check
 ```
 
-- ビルドエラー時はまず `cd wasm && cargo check` で原因を特定する
+エラーがなければ:
+
+```bash
+wasm-pack build --target web --out-dir ../public/wasm
+```
+
+- `cargo check` でエラーが出たら原因を特定して修正してから `wasm-pack build` を実行する
 - クレートのバージョン不一致が原因の場合のみ `wasm/Cargo.toml` を修正する
 
+ビルドが完了したらユーザーに `yarn dev` でサーバーを起動して動作確認するよう伝える。
 確認：seed入力で入力生成 → 出力貼り付けでスライダー更新 → スライダーでSVG描画
 
 ---
