@@ -46,8 +46,16 @@
 
 **まず以下のシェルコマンドを実行して**、`tools/src/lib.rs` の内容を `wasm/src/impl_vis.rs` のプレースホルダー関数の**上**に結合する:
 
+**macOS / Linux / Git Bash:**
 ```bash
-cat tools/src/lib.rs wasm/src/impl_vis.rs > /tmp/impl_vis_combined.rs && mv /tmp/impl_vis_combined.rs wasm/src/impl_vis.rs
+printf '%s' "$(cat tools/src/lib.rs wasm/src/impl_vis.rs)" > wasm/src/impl_vis.rs
+```
+
+**Windows (PowerShell):**
+```powershell
+$lib = Get-Content tools/src/lib.rs -Raw
+$impl = Get-Content wasm/src/impl_vis.rs -Raw
+Set-Content wasm/src/impl_vis.rs "$lib$impl"
 ```
 
 これにより `impl_vis.rs` は以下の構造になる:
