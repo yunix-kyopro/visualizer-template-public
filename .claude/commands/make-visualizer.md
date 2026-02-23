@@ -64,6 +64,13 @@ cat tools/src/lib.rs wasm/src/impl_vis.rs > /tmp/impl_vis_combined.rs && mv /tmp
 - ファイルI/O / `fn main()` → 削除
 - `proconio::input!` はそのまま使える（`OnceSource::from(str)` 経由で）
 - `#[wasm_bindgen]` は付けない（lib.rs 側のみに付く）
+- `gen` 関数内の `_ => panic!(...)` ブランチ → WASM では panic がランタイムエラーになるため、デフォルト値を返すように置き換える
+  ```rust
+  // 変更前
+  _ => { panic!("Unknown problem: {}", problem) }
+  // 変更後（問題Aのパラメータをデフォルトとして使う例）
+  _ => (0, rng.gen_range(1..=100) as f64, rng.gen_range(1..=20) as f64 * 0.01),
+  ```
 
 **`tools/src/lib.rs` にはビジュアライザに不要なコードが含まれることがある。**
 スコア計算・状態遷移・パース関数はビジュアライザでも必要だが、外部プロセスを起動・制御するためのコード（`exec` 関数、`read_line` 関数、`use std::process::ChildStdout` などの import）はビジュアライザには不要なので、遠慮なく削除すること。
@@ -97,10 +104,15 @@ pub fn generate(seed: i32, _problem_id: &str) -> String {
 
 // problem_id がある場合の例（A/B/C が存在するとき）
 pub fn generate(seed: i32, problem_id: &str) -> String {
-    let problem = problem_id.chars().next().unwrap_or('A');
+    let problem = match problem_id.chars().next().unwrap_or('A') {
+        'B' => 'B',
+        'C' => 'C',
+        _ => 'A',  // 未知の値は 'A' にフォールバック
+    };
     let input = gen(seed as u64, problem);
     format!("{}", input)
 }
+// 注意: gen 関数内の `_ => panic!(...)` も同様にデフォルト値返しに変更すること（上記のWASM非互換の項目を参照）
 ```
 
 ### visualize の実装パターン
