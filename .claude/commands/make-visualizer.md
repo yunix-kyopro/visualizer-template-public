@@ -16,28 +16,47 @@
 
 ---
 
-## ステップ2: ファイルを読んで wasm/src/impl_vis.rs を実装
+## ステップ2: 問題を読んでビジュアライザ設計を提案する
 
-### 読むファイル
+以下の2ファイルを読む:
 
-以下を読んで仕様を把握し、**そのまま実装まで続けること**（読んだ後に止まらない）:
+1. `problem_description.txt` — 入出力フォーマット・状態・スコア計算を確認
+2. `tools/src/lib.rs` — 構造体定義と公開関数のシグネチャを把握（**`tools/src/bin/` 以下は読まない**）
 
-1. `problem_description.txt` — 入出力フォーマット・スコア計算式を確認
-2. `tools/src/lib.rs` — 構造体と関数シグネチャを把握する
-   - **`tools/src/bin/` 以下は読まない**
-   - 把握すべきは: 公開関数のシグネチャ（`fn gen(...)` など）と構造体定義（`Input`, `Output` など）
-   - ロジックの詳細は理解しなくていい。コードはそのままコピーして使う
+読んだら、**実装せずに**以下の内容をユーザーに提示してください:
 
-### impl_vis.rs に書くもの
+### 提示する内容
 
-`wasm/src/impl_vis.rs` はプレースホルダーとして既に存在しています。**このファイルを上書きして**実装してください。
+**【ビジュアライザ設計案】** として以下を箇条書きで示す:
 
-`tools/src/lib.rs` 内の以下を全てコピーして使い回す:
-- 各種構造体・enum（`Input`, `Output`, `Action` など）
-- 入力生成・パース・スコア計算・状態遷移などの全ロジック
-- 各種ユーティリティ・ヘルパー関数
+- **描画する要素**: フィールド・エージェント・目的地・障害物など、何をSVGに描くか
+- **ターンの定義**: `calc_max_turn` が返す値（出力の行数 or 操作数など）
+- **ターンごとの状態変化**: スライダーを動かすと何が変わるか
+- **スコア表示**: `visualize` が返すスコアの計算方法
 
-新しく書くのは主に SVG 描画部分（`draw_svg` など）。
+提示した後、**「この設計で実装しますか？」とユーザーに確認を取り、承認を得てからステップ3へ進む。**
+
+---
+
+## ステップ3: wasm/src/impl_vis.rs を実装
+
+ユーザーの承認を得たら実装に入る。
+
+### lib.rs の内容を impl_vis.rs の先頭に結合する
+
+**まず以下のシェルコマンドを実行して**、`tools/src/lib.rs` の内容を `wasm/src/impl_vis.rs` のプレースホルダー関数の**上**に結合する:
+
+```bash
+cat tools/src/lib.rs wasm/src/impl_vis.rs > /tmp/impl_vis_combined.rs && mv /tmp/impl_vis_combined.rs wasm/src/impl_vis.rs
+```
+
+これにより `impl_vis.rs` は以下の構造になる:
+1. `tools/src/lib.rs` の全内容（構造体・ロジック・ユーティリティ）
+2. 既存のプレースホルダー関数（`generate` / `calc_max_turn` / `visualize`）
+
+**`tools/src/bin/` 以下は読まない。lib.rs のみ結合すること。**
+
+新しく書くのは主にプレースホルダーを埋める SVG 描画部分（`draw_svg` など）。
 
 ### WASM 非互換な箇所だけ修正する
 
@@ -45,6 +64,9 @@
 - ファイルI/O / `fn main()` → 削除
 - `proconio::input!` はそのまま使える（`OnceSource::from(str)` 経由で）
 - `#[wasm_bindgen]` は付けない（lib.rs 側のみに付く）
+
+**`tools/src/lib.rs` にはビジュアライザに不要なコードが含まれることがある。**
+スコア計算・状態遷移・パース関数はビジュアライザでも必要だが、外部プロセスを起動・制御するためのコード（`exec` 関数、`read_line` 関数、`use std::process::ChildStdout` などの import）はビジュアライザには不要なので、遠慮なく削除すること。
 
 ### impl_vis.rs が公開する3つの関数
 
@@ -58,6 +80,28 @@ pub fn visualize(input: &str, output: &str, turn: usize) -> Result<(i64, String,
 ```
 
 `calc_max_turn` の注意: **0 を返すとスライダーが動かない**。出力が空でなければ必ず 1 以上を返すこと。
+
+#### `generate` における `problem_id` の扱い
+
+`tools/src/lib.rs` の `gen` 関数が問題カテゴリ（A/B/C など）を引数に取る場合でも、**そのカテゴリが存在しない問題もある**。
+
+- `gen` が問題カテゴリを引数に取らない（引数が seed だけ）場合: `problem_id` を無視してそのまま呼ぶ
+- `gen` が問題カテゴリを引数に取る場合: `problem_id`（"A", "B", "C" など）を `char` に変換して渡す。ただし、`problem_id` が空文字列・未知の値のときはデフォルト値（最初の問題カテゴリ）にフォールバックする
+
+```rust
+// problem_id が不要な場合の例
+pub fn generate(seed: i32, _problem_id: &str) -> String {
+    let input = gen(seed as u64);
+    format!("{}", input)
+}
+
+// problem_id がある場合の例（A/B/C が存在するとき）
+pub fn generate(seed: i32, problem_id: &str) -> String {
+    let problem = problem_id.chars().next().unwrap_or('A');
+    let input = gen(seed as u64, problem);
+    format!("{}", input)
+}
+```
 
 ### visualize の実装パターン
 
@@ -112,7 +156,7 @@ fn draw_svg(/* 状態の引数 */) -> Result<String, Box<dyn std::error::Error>>
 
 ---
 
-## ステップ3: ビルドと動作確認
+## ステップ4: ビルドと動作確認
 
 まず `cargo check` でコンパイルエラーを確認し、通ったら `wasm-pack build` を実行する:
 

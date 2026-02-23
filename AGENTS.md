@@ -23,7 +23,7 @@ visualizer-template-public/
 
 ## ビジュアライザ実装の基本方針
 
-**`tools/src/lib.rs` のコードはほぼ全て `wasm/src/impl_vis.rs` にそのまま移植できる。新しく書く必要があるのは主に SVG 描画部分で、それ以外はコピーして使い回せることが多い。ただし、WASM インターフェースとの兼ね合いで一部の関数シグネチャや型を若干調整することがある。**
+**`tools/src/lib.rs` のコードはほぼ全て `wasm/src/impl_vis.rs` にそのまま移植できる。新しく書く必要があるのは主に SVG 描画部分で、それ以外はコピーして使い回せることが多い。**
 
 `tools/src/lib.rs` 内の以下を全て `impl_vis.rs` にコピーして使い回す：
 - 各種構造体・enum（`Input`, `Output`, `Action` など）
@@ -38,6 +38,9 @@ visualizer-template-public/
 - `proconio::input!` はそのまま使える（`OnceSource::from(str)` 経由で）
 - `#[wasm_bindgen]` は付けない（lib.rs 側のみ）
 
+**`tools/src/lib.rs` にはビジュアライザに不要なコードが含まれることがある。**
+スコア計算・状態遷移・パース関数はビジュアライザでも必要だが、外部プロセスを起動・制御するためのコード（`exec` 関数、`read_line` 関数、`use std::process::ChildStdout` などの import）はビジュアライザには不要なので、遠慮なく削除すること。
+
 ---
 
 ## 実装タスクの進め方
@@ -49,13 +52,35 @@ visualizer-template-public/
 - `problem_description.txt` を読んでプレースホルダーのままなら停止して「problem_description.txt に問題文を記載してください」と伝える
 - `tools/src/` が存在しなければ停止して「公式から配布されるテスターコードを `tools/src/` に配置してください」と伝える
 
-### 2. ファイルを読んで impl_vis.rs を実装
+### 2. 問題を読んでビジュアライザ設計を提案・確認
 
-以下を読んで把握し、**読み終わったら即座に実装に入ること**（読んだ後に止まらない）:
+以下を読む:
+1. `problem_description.txt` — 入出力フォーマット・状態・スコア計算
+2. `tools/src/lib.rs` — 構造体と公開関数のシグネチャ（**`bin/` 以下は読まない**）
 
-1. `problem_description.txt` — 入出力フォーマット・スコア計算式
-2. `tools/src/lib.rs` — 構造体と関数シグネチャを把握（**`bin/` 以下は読まない**）
-   - ロジック内部は理解しなくていい。公開関数のシグネチャと構造体定義を把握したら実装へ
+読んだら**実装せず**、以下の内容を **【ビジュアライザ設計案】** としてユーザーに提示する:
+- **描画する要素**: フィールド・エージェント・目的地・障害物など
+- **ターンの定義**: `calc_max_turn` が返す値（操作数・行数など）
+- **ターンごとの状態変化**: スライダーを動かすと何が変わるか
+- **スコア表示**: スコアの計算方法
+
+**「この設計で実装しますか？」とユーザーに確認を取り、承認を得てから実装へ進む。**
+
+### 3. impl_vis.rs を実装
+
+#### まず lib.rs の内容を impl_vis.rs の先頭に結合する
+
+以下のシェルコマンドを実行して、`tools/src/lib.rs` の内容を `wasm/src/impl_vis.rs` のプレースホルダー関数の**上**に結合する:
+
+```bash
+cat tools/src/lib.rs wasm/src/impl_vis.rs > /tmp/impl_vis_combined.rs && mv /tmp/impl_vis_combined.rs wasm/src/impl_vis.rs
+```
+
+これにより `impl_vis.rs` は以下の構造になる:
+1. `tools/src/lib.rs` の全内容（構造体・ロジック・ユーティリティ）
+2. 既存のプレースホルダー関数（`generate` / `calc_max_turn` / `visualize`）
+
+その後、プレースホルダー関数を実装し、WASM 非互換な箇所（`eprintln!`、ファイルI/O、`fn main()` など）を修正する。
 
 `lib.rs` から以下のシグネチャで呼び出されるため、**必ずこの関数名・シグネチャで実装すること**:
 
@@ -70,7 +95,7 @@ pub fn visualize(input: &str, output: &str, turn: usize) -> Result<(i64, String,
 
 > **`wasm/src/lib.rs` の確認は通常不要**。`generate` / `calc_max_turn` / `visualize` 以外の関数名を使った場合のみ修正すること。
 
-### 3. SVG描画の基本パターン（impl_vis.rs 内）
+### 4. SVG描画の基本パターン（impl_vis.rs 内）
 
 ```rust
 use svg::Document;
@@ -96,7 +121,7 @@ fn draw_svg(/* 状態の引数 */) -> Result<String, Box<dyn std::error::Error>>
 }
 ```
 
-### 4. ビルドと動作確認
+### 5. ビルドと動作確認
 
 まず `cargo check` でエラーを確認してから `wasm-pack build` を実行する:
 
